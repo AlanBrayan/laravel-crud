@@ -1,0 +1,44 @@
+crear migraciones
+php artisan make:migration libros
+
+ public function up()
+    {
+        Schema::create('libros', function (Blueprint $table) {
+            $table->bigIncrements('id');
+            $table->string('nombre');
+            $table->string('precio');
+            
+            $table->timestamps();
+        });
+    }
+
+
+ejecutar migraciones
+
+php artisan make migration
+
+composer require laravel/ui
+php artisan ui bootstrap --auth 
+npm install
+npm run dev
+
+https://github.com/awais-vteams/laravel-crud-generator
+1 - Install
+
+composer require ibex/crud-generator --dev
+php artisan vendor:publish --tag=crud
+
+
+Usage
+1 - php artisan make:crud {table_name}
+
+2 - php artisan make:crud banks
+
+Add a route in web.php
+
+Route::resource('banks', 'BankController');
+Route name in plural slug case.
+
+Options
+Custom Route
+php artisan make:crud {table_name} --route={route_name}
