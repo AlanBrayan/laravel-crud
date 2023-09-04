@@ -1,0 +1,109 @@
+Paso 1: Crear una nueva aplicación Laravel
+Si aún no tienes una aplicación Laravel configurada, puedes crear una nueva ejecutando el siguiente comando en tu terminal:
+
+
+composer create-project laravel/laravel nombre_del_proyecto "5.4.*"
+
+
+Paso 2: Crear una migración
+Las migraciones se utilizan para crear tablas en la base de datos. Ejecuta el siguiente comando para crear una migración para la tabla "tareas":
+
+php artisan make:migration create_tareas_table
+
+
+
+Esto creará un archivo de migración en el directorio database/migrations. Abre el archivo de migración y define la estructura de la tabla "tareas". Por ejemplo:
+
+
+public function up()
+{
+    Schema::create('tareas', function (Blueprint $table) {
+        $table->increments('id');
+        $table->string('titulo');
+        $table->text('descripcion');
+        $table->timestamps();
+    });
+}
+
+Ejecuta la migración para crear la tabla en la base de datos:
+
+php artisan migrate
+
+
+Paso 3: Crear un modelo
+Los modelos representan las tablas de la base de datos en Laravel. Ejecuta el siguiente comando para crear un modelo para la entidad "Tarea":
+
+php artisan make:model Tarea
+
+
+Paso 4: Crear un controlador
+Los controladores se utilizan para manejar las solicitudes HTTP. Ejecuta el siguiente comando para crear un controlador llamado "TareaController":
+php artisan make:controller TareaController
+
+Paso 5: Definir rutas
+Abre el archivo routes/web.php y define las rutas para las acciones del controlador. Por ejemplo:
+
+Route::get('/tareas', 'TareaController@index');
+Route::get('/tareas/create', 'TareaController@create');
+Route::post('/tareas', 'TareaController@store');
+Route::get('/tareas/{id}', 'TareaController@show');
+Route::get('/tareas/{id}/edit', 'TareaController@edit');
+Route::put('/tareas/{id}', 'TareaController@update');
+Route::delete('/tareas/{id}', 'TareaController@destroy');
+
+
+Paso 6: Crear vistas
+Crea las vistas necesarias en el directorio resources/views/tareas para las acciones del controlador (index, create, edit, show). Puedes utilizar Blade, el motor de plantillas de Laravel, para crear tus vistas.
+
+
+Paso 7: Implementar las acciones en el controlador
+En el controlador (TareaController.php), implementa las acciones para realizar las operaciones CRUD utilizando el modelo "Tarea". Por ejemplo:
+
+public function index()
+{
+    $tareas = Tarea::all();
+    return view('tareas.index', compact('tareas'));
+}
+
+public function create()
+{
+    return view('tareas.create');
+}
+
+public function store(Request $request)
+{
+    Tarea::create($request->all());
+    return redirect('/tareas');
+}
+
+public function show($id)
+{
+    $tarea = Tarea::find($id);
+    return view('tareas.show', compact('tarea'));
+}
+
+public function edit($id)
+{
+    $tarea = Tarea::find($id);
+    return view('tareas.edit', compact('tarea'));
+}
+
+public function update(Request $request, $id)
+{
+    $tarea = Tarea::find($id);
+    $tarea->update($request->all());
+    return redirect('/tareas');
+}
+
+public function destroy($id)
+{
+    $tarea = Tarea::find($id);
+    $tarea->delete();
+    return redirect('/tareas');
+}
+
+
+
+Paso 8: Visualización de datos
+Finalmente, puedes acceder a tu CRUD de tareas en las rutas definidas. Por ejemplo, para ver la lista de tareas, accede a /tareas. Para crear una nueva tarea, accede a /tareas/create. Continúa de manera similar para las demás acciones.
+
