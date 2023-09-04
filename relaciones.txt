@@ -1,0 +1,238 @@
+Paso 1: Crear una nueva aplicación Laravel
+
+Si aún no tienes una aplicación Laravel configurada, puedes crear una nueva ejecutando el siguiente comando en tu terminal:
+
+
+
+composer create-project laravel/laravel nombre_del_proyecto "5.4.*"
+Paso 2: Crear migraciones para las tablas
+
+Ejecuta los siguientes comandos para crear migraciones para las tablas "posts" y "comments":
+
+
+
+php artisan make:migration create_posts_table
+php artisan make:migration create_comments_table
+Esto creará dos archivos de migración en el directorio database/migrations.
+
+Paso 3: Definir las estructuras de las tablas en las migraciones
+
+Abre los archivos de migración y define las estructuras de las tablas "posts" y "comments". Por ejemplo:
+
+En el archivo de migración create_posts_table.php:
+
+
+
+public function up()
+{
+    Schema::create('posts', function (Blueprint $table) {
+        $table->increments('id');
+        $table->string('title');
+        $table->text('content');
+        $table->timestamps();
+    });
+}
+En el archivo de migración create_comments_table.php:
+
+
+
+public function up()
+{
+    Schema::create('comments', function (Blueprint $table) {
+        $table->increments('id');
+        $table->text('body');
+        $table->unsignedInteger('post_id');
+        $table->timestamps();
+
+        $table->foreign('post_id')->references('id')->on('posts')->onDelete('cascade');
+    });
+}
+La migración de "comments" incluye una clave externa (foreign key) post_id que hace referencia al campo id de la tabla "posts". Esto establece una relación entre las dos tablas.
+
+Paso 4: Ejecutar las migraciones
+
+Ejecuta el siguiente comando para ejecutar las migraciones y crear las tablas en la base de datos:
+
+
+
+php artisan migrate
+Paso 5: Crear modelos
+
+Crea modelos para las dos tablas utilizando los siguientes comandos:
+
+
+
+php artisan make:model Post
+php artisan make:model Comment
+Paso 6: Definir las relaciones en los modelos
+
+En el modelo "Post" (Post.php), define la relación de uno a muchos con los comentarios:
+
+
+
+public function comments()
+{
+    return $this->hasMany(Comment::class);
+}
+En el modelo "Comment" (Comment.php), define la relación inversa con la publicación:
+
+
+
+public function post()
+{
+    return $this->belongsTo(Post::class);
+}
+Paso 7: Usar las relaciones en controladores y vistas
+
+Ahora puedes usar estas relaciones en controladores y vistas para mostrar y gestionar publicaciones y comentarios relacionados. Por ejemplo, puedes obtener todos los comentarios de una publicación de la siguiente manera:
+
+
+
+$comments = Post::find(1)->comments;
+Y en tus vistas, puedes iterar sobre los comentarios de una publicación de esta manera:
+
+
+@foreach ($post->comments as $comment)
+    <p>{{ $comment->body }}</p>
+@endforeach
+Este es un ejemplo básico de cómo crear dos tablas relacionadas en Laravel 5.4. Puedes personalizar y ampliar estas relaciones según tus necesidades específicas.
+
+
+
+
+
+"posts" y "comments" en Laravel 5.4. Estas vistas se deben colocar en el directorio resources/views.
+
+
+Vista para mostrar todas las publicaciones (index.blade.php):
+
+
+@extends('layouts.app')
+
+@section('content')
+    <h1>Lista de Publicaciones</h1>
+    <a href="{{ route('posts.create') }}" class="btn btn-primary">Crear Nueva Publicación</a>
+
+    @if (count($posts) > 0)
+        <ul class="list-group mt-3">
+            @foreach ($posts as $post)
+                <li class="list-group-item">
+                    <a href="{{ route('posts.show', $post->id) }}">{{ $post->title }}</a>
+                </li>
+            @endforeach
+        </ul>
+    @else
+        <p>No hay publicaciones disponibles.</p>
+    @endif
+@endsection
+
+Vista para crear una nueva publicación (create.blade.php):
+
+
+
+@extends('layouts.app')
+
+@section('content')
+    <h1>Crear Nueva Publicación</h1>
+    
+    <form method="POST" action="{{ route('posts.store') }}">
+        @csrf
+        <div class="form-group">
+            <label for="title">Título:</label>
+            <input type="text" class="form-control" id="title" name="title">
+        </div>
+        <div class="form-group">
+            <label for="content">Contenido:</label>
+            <textarea class="form-control" id="content" name="content"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Guardar Publicación</button>
+    </form>
+@endsection
+
+
+Vista para mostrar detalles de una publicación (show.blade.php):
+
+
+
+@extends('layouts.app')
+
+@section('content')
+    <h1>Detalles de la Publicación</h1>
+    <p><strong>Título:</strong> {{ $post->title }}</p>
+    <p><strong>Contenido:</strong> {{ $post->content }}</p>
+    
+    <h2>Comentarios</h2>
+    @if (count($post->comments) > 0)
+        <ul class="list-group mt-3">
+            @foreach ($post->comments as $comment)
+                <li class="list-group-item">
+                    {{ $comment->body }}
+                </li>
+            @endforeach
+        </ul>
+    @else
+        <p>No hay comentarios para esta publicación.</p>
+    @endif
+@endsection
+Vista para crear un comentario en una publicación (create-comment.blade.php):
+
+
+
+@extends('layouts.app')
+
+@section('content')
+    <h1>Crear Comentario</h1>
+    
+    <form method="POST" action="{{ route('comments.store', ['post' => $post->id]) }}">
+        @csrf
+        <div class="form-group">
+            <label for="body">Comentario:</label>
+            <textarea class="form-control" id="body" name="body"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Guardar Comentario</button>
+    </form>
+@endsection
+
+
+
+-------------*Modelos*-------------------
+Modelo para la tabla "posts" (Post.php):
+
+<?php
+
+namespace App;
+
+use Illuminate\Database\Eloquent\Model;
+
+class Post extends Model
+{
+    protected $fillable = ['title', 'content'];
+
+    public function comments()
+    {
+        return $this->hasMany(Comment::class);
+    }
+}
+
+
+
+
+Modelo para la tabla "comments" (Comment.php):
+
+<?php
+
+namespace App;
+
+use Illuminate\Database\Eloquent\Model;
+
+class Comment extends Model
+{
+    protected $fillable = ['body'];
+
+    public function post()
+    {
+        return $this->belongsTo(Post::class);
+    }
+}
+
+

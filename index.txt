@@ -35,6 +35,20 @@ Los modelos representan las tablas de la base de datos en Laravel. Ejecuta el si
 
 php artisan make:model Tarea
 
+<?php
+
+namespace App;
+
+use Illuminate\Database\Eloquent\Model;
+
+class Tarea extends Model
+{
+    protected $fillable = ['titulo', 'descripcion'];
+
+
+}
+
+
 
 Paso 4: Crear un controlador
 Los controladores se utilizan para manejar las solicitudes HTTP. Ejecuta el siguiente comando para crear un controlador llamado "TareaController":
@@ -106,4 +120,97 @@ public function destroy($id)
 
 Paso 8: Visualización de datos
 Finalmente, puedes acceder a tu CRUD de tareas en las rutas definidas. Por ejemplo, para ver la lista de tareas, accede a /tareas. Para crear una nueva tarea, accede a /tareas/create. Continúa de manera similar para las demás acciones.
+
+
+
+
+---------------Vistas----------------------
+
+**** resources/views/tareas ****
+
+
+Vista para listar tareas (index.blade.php):
+
+@extends('layouts.app')
+
+@section('content')
+    <h1>Lista de Tareas</h1>
+    <a href="/tareas/create" class="btn btn-primary">Crear Nueva Tarea</a>
+    
+    @if (count($tareas) > 0)
+        <ul class="list-group mt-3">
+            @foreach ($tareas as $tarea)
+                <li class="list-group-item">
+                    <a href="/tareas/{{ $tarea->id }}">{{ $tarea->titulo }}</a>
+                </li>
+            @endforeach
+        </ul>
+    @else
+        <p>No hay tareas disponibles.</p>
+    @endif
+@endsection
+
+
+
+Vista para crear una nueva tarea (create.blade.php):
+
+@extends('layouts.app')
+
+@section('content')
+    <h1>Crear Nueva Tarea</h1>
+    
+    <form method="POST" action="/tareas">
+        @csrf
+        <div class="form-group">
+            <label for="titulo">Título:</label>
+            <input type="text" class="form-control" id="titulo" name="titulo">
+        </div>
+        <div class="form-group">
+            <label for="descripcion">Descripción:</label>
+            <textarea class="form-control" id="descripcion" name="descripcion"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Guardar Tarea</button>
+    </form>
+@endsection
+
+
+Vista para ver detalles de una tarea (show.blade.php):
+
+@extends('layouts.app')
+
+@section('content')
+    <h1>Detalles de la Tarea</h1>
+    <p><strong>Título:</strong> {{ $tarea->titulo }}</p>
+    <p><strong>Descripción:</strong> {{ $tarea->descripcion }}</p>
+    <a href="/tareas/{{ $tarea->id }}/edit" class="btn btn-primary">Editar Tarea</a>
+    <form action="/tareas/{{ $tarea->id }}" method="POST" class="mt-2">
+        @csrf
+        @method('DELETE')
+        <button type="submit" class="btn btn-danger">Eliminar Tarea</button>
+    </form>
+@endsection
+
+
+
+Vista para editar una tarea (edit.blade.php):
+
+@extends('layouts.app')
+
+@section('content')
+    <h1>Editar Tarea</h1>
+    
+    <form method="POST" action="/tareas/{{ $tarea->id }}">
+        @csrf
+        @method('PUT')
+        <div class="form-group">
+            <label for="titulo">Título:</label>
+            <input type="text" class="form-control" id="titulo" name="titulo" value="{{ $tarea->titulo }}">
+        </div>
+        <div class="form-group">
+            <label for="descripcion">Descripción:</label>
+            <textarea class="form-control" id="descripcion" name="descripcion">{{ $tarea->descripcion }}</textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Actualizar Tarea</button>
+    </form>
+@endsection
 
